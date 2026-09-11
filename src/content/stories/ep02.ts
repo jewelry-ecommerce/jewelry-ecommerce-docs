@@ -1,0 +1,206 @@
+import type { UserStory } from '../types';
+
+export const storiesEP02: UserStory[] = [
+  {
+    id: 'US-CAT-01',
+    epicId: 'EP-02',
+    title: 'Xem danh sách sản phẩm theo danh mục',
+    priority: 'MUST',
+    status: 'DONE',
+    owner: 'FE',
+    actor: 'Khách hàng',
+    userStory:
+      'Là khách hàng, tôi muốn xem danh sách sản phẩm theo danh mục (nhẫn, vòng, dây chuyền...) để tìm sản phẩm phù hợp nhanh hơn.',
+    objective: 'Hiển thị danh sách sản phẩm được lọc theo danh mục với layout grid/list.',
+    mainFlow: [
+      'Khách hàng chọn danh mục từ menu navigation',
+      'Hệ thống hiển thị trang danh mục với grid sản phẩm',
+      'Mỗi sản phẩm hiển thị: ảnh, tên, giá, badge (New/Sale)',
+      'Phân trang hoặc infinite scroll',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-01', text: 'Sản phẩm hết hàng vẫn hiển thị nhưng có badge "Hết hàng" và không thể thêm vào giỏ.', group: 'Catalog' },
+      { id: 'BR-CAT-02', text: 'Mặc định sắp xếp theo "Mới nhất" (createdAt DESC).', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-01-01',
+        given: 'Tôi vào trang danh mục "Nhẫn"',
+        when: 'Trang load xong',
+        then: 'Chỉ hiển thị sản phẩm thuộc danh mục Nhẫn, có phân trang 20 sản phẩm/trang',
+      },
+    ],
+    edgeCases: ['Danh mục không có sản phẩm → hiển thị empty state "Chưa có sản phẩm trong danh mục này"'],
+    outOfScope: ['Wishlist', 'So sánh sản phẩm'],
+    dependencies: [],
+    notes: ['Layout: 4 cột desktop, 2 cột mobile'],
+  },
+  {
+    id: 'US-CAT-02',
+    epicId: 'EP-02',
+    title: 'Tìm kiếm sản phẩm full-text',
+    priority: 'MUST',
+    status: 'DONE',
+    owner: 'Both',
+    actor: 'Khách hàng',
+    userStory:
+      'Là khách hàng, tôi muốn tìm kiếm sản phẩm bằng từ khóa để nhanh chóng tìm thấy sản phẩm mong muốn.',
+    objective: 'Cung cấp tìm kiếm full-text hỗ trợ tiếng Việt với gợi ý tự động.',
+    mainFlow: [
+      'Khách hàng nhấp vào thanh tìm kiếm trên header',
+      'Nhập từ khóa (ví dụ: "nhẫn vàng 18k")',
+      'Hệ thống hiển thị dropdown gợi ý kết quả theo thời gian thực',
+      'Khách hàng nhấn Enter hoặc chọn gợi ý',
+      'Chuyển sang trang kết quả tìm kiếm với danh sách sản phẩm phù hợp',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-03', text: 'Tìm kiếm hỗ trợ tiếng Việt có dấu và không dấu.', group: 'Catalog' },
+      { id: 'BR-CAT-04', text: 'Dropdown gợi ý xuất hiện sau khi nhập ≥ 2 ký tự, hiển thị tối đa 8 gợi ý.', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-02-01',
+        given: 'Tôi nhập "nhan vang" (không dấu)',
+        when: 'Kết quả tìm kiếm hiển thị',
+        then: 'Hệ thống tìm thấy sản phẩm có "nhẫn vàng" trong tên hoặc mô tả',
+      },
+    ],
+    edgeCases: ['Không tìm thấy kết quả → hiển thị "Không tìm thấy sản phẩm" và gợi ý danh mục'],
+    outOfScope: ['Tìm kiếm bằng ảnh (visual search)', 'Tìm kiếm giọng nói'],
+    dependencies: [],
+    notes: ['Search index được build bởi backend service riêng'],
+  },
+  {
+    id: 'US-CAT-03',
+    epicId: 'EP-02',
+    title: 'Lọc và sắp xếp sản phẩm',
+    priority: 'MUST',
+    status: 'DONE',
+    owner: 'FE',
+    actor: 'Khách hàng',
+    userStory:
+      'Là khách hàng, tôi muốn lọc sản phẩm theo giá, chất liệu, đá quý và sắp xếp kết quả để tìm sản phẩm phù hợp với nhu cầu.',
+    objective: 'Cung cấp bộ lọc đa chiều và tùy chọn sắp xếp trên trang danh mục/tìm kiếm.',
+    mainFlow: [
+      'Trang danh mục hiển thị panel lọc bên trái (desktop) hoặc bottom sheet (mobile)',
+      'Khách hàng chọn các bộ lọc: khoảng giá, chất liệu (vàng/bạc/bạch kim), loại đá, kích cỡ',
+      'Kết quả cập nhật ngay lập tức (không cần nhấn nút tìm)',
+      'Khách hàng chọn sắp xếp: Mới nhất / Giá tăng dần / Giá giảm dần / Phổ biến nhất',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-05', text: 'Bộ lọc áp dụng đồng thời nhiều tiêu chí (AND logic).', group: 'Catalog' },
+      { id: 'BR-CAT-06', text: 'URL cập nhật query params khi lọc để có thể share link.', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-03-01',
+        given: 'Tôi chọn bộ lọc "Vàng 18K" và khoảng giá 2-5 triệu',
+        when: 'Bộ lọc được áp dụng',
+        then: 'Chỉ hiển thị sản phẩm vàng 18K có giá từ 2-5 triệu',
+      },
+    ],
+    edgeCases: ['Kết hợp bộ lọc không có sản phẩm → empty state + nút "Xóa bộ lọc"'],
+    outOfScope: ['Lưu bộ lọc yêu thích'],
+    dependencies: ['US-CAT-01'],
+    notes: ['Bộ lọc giá sử dụng range slider'],
+  },
+  {
+    id: 'US-CAT-04',
+    epicId: 'EP-02',
+    title: 'Xem chi tiết sản phẩm',
+    priority: 'MUST',
+    status: 'DONE',
+    owner: 'FE',
+    actor: 'Khách hàng',
+    userStory:
+      'Là khách hàng, tôi muốn xem đầy đủ thông tin chi tiết sản phẩm (ảnh, thông số kỹ thuật, variant) để đưa ra quyết định mua hàng.',
+    objective: 'Hiển thị trang chi tiết sản phẩm đầy đủ với gallery ảnh và variant selector.',
+    mainFlow: [
+      'Khách hàng click vào sản phẩm trong danh sách',
+      'Trang chi tiết hiển thị: gallery ảnh (có zoom), tên, giá, mô tả',
+      'Chọn variant: kích cỡ (size), chất liệu màu sắc (vàng vàng/vàng trắng/vàng hồng)',
+      'Hiển thị trạng thái tồn kho theo variant được chọn',
+      'Nhấn "Thêm vào giỏ" hoặc "Mua ngay"',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-07', text: 'Giá hiển thị theo variant đã chọn, cập nhật ngay khi đổi variant.', group: 'Catalog' },
+      { id: 'BR-CAT-08', text: 'Nếu variant hết hàng, nút "Thêm vào giỏ" bị vô hiệu hóa.', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-04-01',
+        given: 'Tôi đang xem trang chi tiết sản phẩm',
+        when: 'Tôi chọn variant "Vàng trắng 18K - Size 12"',
+        then: 'Giá và tồn kho cập nhật đúng với variant đó',
+      },
+    ],
+    edgeCases: ['Sản phẩm bị ẩn hoặc xóa → 404 page'],
+    outOfScope: ['AR try-on', 'Video 360 độ', 'Review & Rating (nếu không đủ thời gian)'],
+    dependencies: ['US-CAT-01'],
+    notes: ['Gallery hỗ trợ swipe trên mobile'],
+  },
+  {
+    id: 'US-CAT-05',
+    epicId: 'EP-02',
+    title: 'Xem sản phẩm liên quan và gợi ý',
+    priority: 'SHOULD',
+    status: 'DONE',
+    owner: 'FE',
+    actor: 'Khách hàng',
+    userStory:
+      'Là khách hàng đang xem chi tiết sản phẩm, tôi muốn thấy các sản phẩm liên quan để khám phá thêm lựa chọn.',
+    objective: 'Tăng khả năng khám phá sản phẩm và cross-sell thông qua gợi ý liên quan.',
+    mainFlow: [
+      'Bên dưới trang chi tiết sản phẩm hiển thị section "Sản phẩm liên quan"',
+      'Hiển thị 4-8 sản phẩm cùng danh mục hoặc cùng chất liệu',
+      'Mỗi sản phẩm có ảnh, tên, giá',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-09', text: 'Gợi ý dựa trên cùng category, cùng chất liệu hoặc cùng khoảng giá.', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-05-01',
+        given: 'Tôi đang xem nhẫn vàng',
+        when: 'Tôi scroll xuống cuối trang',
+        then: 'Hiển thị ít nhất 4 sản phẩm liên quan cùng danh mục hoặc chất liệu',
+      },
+    ],
+    edgeCases: ['Không có sản phẩm liên quan → ẩn section này'],
+    outOfScope: ['Machine learning recommendation'],
+    dependencies: ['US-CAT-04'],
+    notes: [],
+  },
+  {
+    id: 'US-CAT-06',
+    epicId: 'EP-02',
+    title: 'Thêm sản phẩm vào Wishlist',
+    priority: 'SHOULD',
+    status: 'DONE',
+    owner: 'Both',
+    actor: 'Khách hàng đã đăng nhập',
+    userStory:
+      'Là khách hàng, tôi muốn lưu sản phẩm vào danh sách yêu thích để xem lại sau khi chưa muốn mua ngay.',
+    objective: 'Cung cấp tính năng Wishlist để lưu sản phẩm ưa thích.',
+    mainFlow: [
+      'Khách hàng nhấn icon ♡ trên ảnh sản phẩm',
+      'Hệ thống thêm vào Wishlist, icon chuyển thành ♥',
+      'Khách hàng có thể vào trang "Yêu thích" để xem danh sách',
+    ],
+    businessRules: [
+      { id: 'BR-CAT-10', text: 'Wishlist chỉ lưu được khi đã đăng nhập. Chưa đăng nhập → redirect đăng nhập.', group: 'Catalog' },
+    ],
+    acceptanceCriteria: [
+      {
+        id: 'AC-CAT-06-01',
+        given: 'Tôi đã đăng nhập và đang xem sản phẩm',
+        when: 'Tôi nhấn icon ♡',
+        then: 'Sản phẩm được thêm vào Wishlist và icon chuyển thành ♥ màu đỏ',
+      },
+    ],
+    edgeCases: ['Sản phẩm bị xóa trong khi ở Wishlist → hiển thị nhãn "Không còn bán"'],
+    outOfScope: ['Chia sẻ Wishlist ra ngoài'],
+    dependencies: ['US-ACC-01'],
+    notes: [],
+  },
+];
